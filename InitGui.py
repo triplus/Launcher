@@ -104,14 +104,22 @@ def dockWidget():
 
         row = 0
 
+        wbList = FreeCADGui.listWorkbenches()
+
         for i in actions:
 
             item = QtGui.QStandardItem()
-            item.setText(str(actions[i].text()).replace("&", ""))
+            item.setText((actions[i].text()).replace("&", ""))
             item.setIcon(actions[i].icon())
             item.setToolTip(actions[i].toolTip())
             item.setEnabled(actions[i].isEnabled())
             item.setData(actions[i].objectName(), QtCore.Qt.UserRole)
+
+            if actions[i].objectName() in wbList:
+                item.setData("Workbench", 33)
+            else:
+                pass
+
             model.setItem(row, 0, item)
             row = row + 1
 
@@ -135,6 +143,11 @@ def dockWidget():
 
         if data in actions:
             actions[data].trigger()
+        else:
+            pass
+
+        if item.data(33) == "Workbench":
+            modelData()
         else:
             pass
 
