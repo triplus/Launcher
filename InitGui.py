@@ -17,14 +17,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 
-from PySide import QtGui
-from PySide import QtCore
-
-
 def singleInstance():
+    """
+    Only have one instance of Launcher running.
+    """
+    import FreeCADGui as Gui
     from PySide import QtGui
 
-    mw = FreeCADGui.getMainWindow()
+    mw = Gui.getMainWindow()
 
     if mw:
         for i in mw.findChildren(QtGui.QDockWidget):
@@ -39,22 +39,51 @@ singleInstance()
 
 
 def dockWidget():
+    """
+    Launcher widget for FreeCAD
+    """
+    import FreeCADGui as Gui
     from PySide import QtGui
     from PySide import QtCore
 
-    mw = FreeCADGui.getMainWindow()
+    mw = Gui.getMainWindow()
+
+    icon = """<svg xmlns="http://www.w3.org/2000/svg" height="64" width="64">
+              <rect height="64" width="64" fill="none" />
+              </svg>"""
+
+    iconPixmap = QtGui.QPixmap()
+    iconPixmap.loadFromData(icon)
 
     class LauncherEdit(QtGui.QLineEdit):
+        """
+        Define completer show/hide behavior.
+        """
         def __init__(self, parent=None):
             super(LauncherEdit, self).__init__(parent)
 
         def focusInEvent(self, e):
+            """
+            Prevent updating model data after closing completer.
+            """
             if e.reason() == QtCore.Qt.PopupFocusReason:
                 pass
             else:
                 modelData()
 
+        def keyPressEvent(self, e):
+            """
+            Show completer after down key is pressed.
+            """
+            if e.key() == QtCore.Qt.Key_Down:
+                edit.clear()
+                completer.setCompletionPrefix("")
+                completer.complete()
+            else:
+                QtGui.QLineEdit.keyPressEvent(self, e)
+
     completer = QtGui.QCompleter()
+    completer.setMaxVisibleItems(16)
     completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
 
     edit = LauncherEdit()
@@ -74,22 +103,21 @@ def dockWidget():
         pass
 
     def modelData():
-
+        """
+        Fill the model with model items.
+        """
         actions = {}
         duplicates = []
 
         for i in mw.findChildren(QtGui.QAction):
-            if i.objectName() is not None:
-                if i.objectName() != "":
-                    if i.objectName() in actions:
-                        if i.objectName() not in duplicates:
-                            duplicates.append(i.objectName())
-                        else:
-                            pass
+            if i.objectName():
+                if i.objectName() in actions:
+                    if i.objectName() not in duplicates:
+                        duplicates.append(i.objectName())
                     else:
-                        actions[i.objectName()] = i
+                        pass
                 else:
-                    pass
+                    actions[i.objectName()] = i
             else:
                 pass
 
@@ -104,34 +132,34 @@ def dockWidget():
 
         row = 0
 
-        wbList = FreeCADGui.listWorkbenches()
-
         for i in actions:
 
             item = QtGui.QStandardItem()
             item.setText((actions[i].text()).replace("&", ""))
-            item.setIcon(actions[i].icon())
+            if actions[i].icon():
+                item.setIcon(actions[i].icon())
+            else:
+                item.setIcon(QtGui.QIcon(QtGui.QIcon(iconPixmap)))
             item.setToolTip(actions[i].toolTip())
             item.setEnabled(actions[i].isEnabled())
             item.setData(actions[i].objectName(), QtCore.Qt.UserRole)
 
-            if actions[i].objectName() in wbList:
-                item.setData("Workbench", 33)
-            else:
-                pass
-
             model.setItem(row, 0, item)
-            row = row + 1
+            row += 1
 
     def onReturnPressed():
-
+        """
+        Clear line edit and update model data after enter key is pressed.
+        """
         edit.clear()
         modelData()
 
     edit.returnPressed.connect(onReturnPressed)
 
     def onCompleter(modelIndex):
-
+        """
+        When command is selected and triggered run it and update model data.
+        """
         actions = {}
 
         for i in mw.findChildren(QtGui.QAction):
@@ -146,10 +174,7 @@ def dockWidget():
         else:
             pass
 
-        if item.data(33) == "Workbench":
-            modelData()
-        else:
-            pass
+        modelData()
 
     completer.activated[QtCore.QModelIndex].connect(onCompleter)
 
