@@ -178,4 +178,12 @@ def dockWidget():
 
     completer.activated[QtCore.QModelIndex].connect(onCompleter)
 
+    a = QtGui.QAction(mw)
+    mw.addAction(a)
+    a.setText("Launcher")
+    a.setObjectName("Std_Launcher")
+    # a.setShortcut(QtGui.QKeySequence("L"))
+
+    a.triggered.connect(edit.setFocus)
+
 dockWidget()
