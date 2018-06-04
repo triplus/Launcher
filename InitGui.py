@@ -180,9 +180,9 @@ def dockWidget():
 
     a = QtGui.QAction(mw)
     mw.addAction(a)
-    a.setText("Launcher")
-    a.setObjectName("Std_Launcher")
-    # a.setShortcut(QtGui.QKeySequence("L"))
+    a.setText("Launcher focus")
+    a.setObjectName("SetLauncherFocus")
+    a.setShortcut(QtGui.QKeySequence("Ctrl+Shift+Q"))
 
     a.triggered.connect(edit.setFocus)
 
