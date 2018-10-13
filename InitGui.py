@@ -1,5 +1,5 @@
 # Launcher widget for FreeCAD
-# Copyright (C) 2016  triplus @ FreeCAD
+# Copyright (C) 2016, 2017, 2018 triplus @ FreeCAD
 #
 #
 # This library is free software; you can redistribute it and/or
@@ -85,6 +85,11 @@ def dockWidget():
     completer = QtGui.QCompleter()
     completer.setMaxVisibleItems(16)
     completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+    try:
+        # Qt 5.2 and up.
+        completer.setFilterMode(QtCore.Qt.MatchContains)
+    except AttributeError:
+         pass
 
     edit = LauncherEdit()
     edit.setCompleter(completer)
