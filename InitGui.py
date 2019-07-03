@@ -53,7 +53,7 @@ def dockWidget():
               </svg>"""
 
     iconPixmap = QtGui.QPixmap()
-    iconPixmap.loadFromData(icon)
+    iconPixmap.loadFromData(str.encode(icon))
 
     class LauncherEdit(QtGui.QLineEdit):
         """
