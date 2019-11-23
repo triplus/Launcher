@@ -81,6 +81,8 @@ def dockWidget():
                 completer.complete()
             else:
                 QtGui.QLineEdit.keyPressEvent(self, e)
+                index = model.index(0, 0)
+                completer.popup().setCurrentIndex(index)
 
     completer = QtGui.QCompleter()
     completer.setMaxVisibleItems(16)
@@ -89,7 +91,7 @@ def dockWidget():
         # Qt 5.2 and up.
         completer.setFilterMode(QtCore.Qt.MatchContains)
     except AttributeError:
-         pass
+        pass
 
     edit = LauncherEdit()
     edit.setCompleter(completer)
@@ -152,15 +154,6 @@ def dockWidget():
             model.setItem(row, 0, item)
             row += 1
 
-    def onReturnPressed():
-        """
-        Clear line edit and update model data after enter key is pressed.
-        """
-        edit.clear()
-        modelData()
-
-    edit.returnPressed.connect(onReturnPressed)
-
     def onCompleter(modelIndex):
         """
         When command is selected and triggered run it and update model data.
@@ -179,7 +172,9 @@ def dockWidget():
         else:
             pass
 
-        modelData()
+        edit.clear()
+        edit.clearFocus()
+        edit.setFocus()
 
     completer.activated[QtCore.QModelIndex].connect(onCompleter)
 
